@@ -40,21 +40,23 @@ class Balancer:
         print("get_func_balance", const.tasks)
         # for i in range(min(balance_count, len(const.tasks))):
         i = 0
-        while i < min(balance_count, len(const.tasks)):
+        count_new_task = 0
+        while count_new_task < min(balance_count, len(const.tasks)) and i < len(const.tasks):
             # if const.tasks[i].stack_service != -1:
-            print("Task " + str(const.tasks[i].id), len(const.tasks))
+            print("Task " + str(const.tasks[i].id), const.tasks[i].is_closed, const.tasks[i].in_work)
             if not const.tasks[i].is_closed and not const.tasks[i].in_work:
                 handler_id = const.tasks[i].handler_id
                 
                 ## по handler_id доставать имя сервиса
                 service_name = self.get_service_name_by_hendler_id(handler_id)
-                print("get_service_name_by_hendler_id-", service_name, handler_id)
+                # print("get_service_name_by_hendler_id-", service_name, handler_id)
                 actual_pods, act_pods_ids = self.get_pods_by_srv_id(service_name)
                 t, new_pods = self.balance_f(const.tasks[i], actual_pods)
        
                 self.update_pods(service_name, new_pods, act_pods_ids)
                 const.tasks[i].in_work = True
-            else:
+                count_new_task += 1
+            elif const.tasks[i].is_closed:
                 t = const.tasks[i]
                 del const.tasks[i]
 
@@ -63,16 +65,13 @@ class Balancer:
                     # надо найти конкретный под и сервис
                     # self.srvs[t.stack_service].service.wait_outer_hendler = False
                     print(t)
- 
                     for pi in self.srvs:
                         for p in self.srvs[pi].pods:
                             if p.id == t.stack_service:
                                 p.wait_outer_hendler = False
                     
-                    
                     const.subtask_closed.append(t)
-                    continue
-                const.closed_tasks.append(t)   
+                const.closed_tasks.append(t)
             i += 1      
         return
     
