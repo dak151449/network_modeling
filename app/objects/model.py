@@ -2,19 +2,21 @@
 from app.objects.balancer import Balancer
 from app.objects.service import Service
 from app.global_constants import const
+from app.generate_task import Generator
 
 
 class Model:
     balancer: Balancer = None
     
-    def __init__(self, f, srvs: list[Service]):
+    def __init__(self, f, srvs: list[Service], g: Generator):
         self.balancer = Balancer(f, srvs)
+        self.generator = g
         
     def modeling(self):
         
         while const.global_time < const.STOP_TIME:
             self.run_step()
-            print("------------------------- global time =", const.global_time, "TASK:", const.tasks)
+            print("------------------------- global time =", const.global_time)
             const.global_time +=1
         
         return
@@ -30,5 +32,7 @@ class Model:
         
         
         self.balancer.update_metrics()
+        
+        self.generator.schedule_events()
         
         return

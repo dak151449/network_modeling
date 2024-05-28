@@ -3,7 +3,7 @@ from app.objects.task import Task
 
 
 
-STOP_TIME = 2000
+STOP_TIME = 10000 * 100
 """остановка моделирования по истечению времени
 """
 
@@ -26,3 +26,9 @@ def set_start_tasks(tasks: list[Task]) -> list[Task]:
     for t in tasks:
         t.start_global_time = global_time
     return tasks
+
+def get_time():
+    return global_time
+
+def sleep(duration):
+    return global_time

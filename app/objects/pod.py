@@ -32,6 +32,8 @@ class Pod:
         self.count_task_int_deque: list[int] = []
         """Количество задач в очереди с течением времени"""
         self.responces: list[Task] = []
+        self.responces_time_avg: float = 0
+        self.res_count: int = 0
         """список завершенных задач для статистики"""
         self.responces_count: list[int] = [0]
         """количество завершенных задач для статистики"""
@@ -39,7 +41,7 @@ class Pod:
         # self.rp_count: int = 0
         """количество ответов за 1 времени"""
         
-        self.busy_time: int = 0
+        self.busy_time: int = 1
         """Busy Time: Общее время, в течение которого устройство было занято обслуживанием транзакций."""
         self.idle_time: int = 0
         """Idle Time: Общее время, в течение которого устройство простаивало, то есть не выполняло никаких задач."""
@@ -62,7 +64,7 @@ class Pod:
         if self.actual_hendlers == None:
             return
         
-        print("Service.update_time", self.actual_hendlers, "-------- Serv:", self.name+self.id)
+        # print("Service.update_time", self.actual_hendlers, "-------- Serv:", self.name+self.id)
         if self.actual_hendlers.way != [] and not self.wait_outer_hendler:
             handler_id = self.actual_hendlers.way.pop()
             # создаем sub task и кладем её в балансировщик
@@ -75,7 +77,7 @@ class Pod:
             
             # заблокированы до ответа другой ручки
             self.wait_outer_hendler = True
-            print("Subtask  ", sub_task)
+            # print("Subtask  ", sub_task)
             return
         
         
@@ -87,7 +89,14 @@ class Pod:
                 self.task_in_work.end_work_time = const.global_time
                 self.task_in_work.end_global_time = const.global_time
                 self.task_in_work.is_closed = True
+                
                 self.responces.append(self.task_in_work)
+                self.res_count += 1
+                 
+                self.busy_time += self.task_in_work.end_work_time - self.task_in_work.start_work_time
+                
+                self.responces_time_avg = self.busy_time / self.res_count
+                
                 self.task_in_work = None
                 # const.update_task_is_closed(self.task_in_work.id)
         return
@@ -96,15 +105,17 @@ class Pod:
         """Обновляем метрики для анализа
         """
         self.count_task_int_deque.append(len(self.queue_tasks))
-        self.rps.append(len(self.responces) / (const.global_time))
+        
         
         # глоабльное время работы устройства
         if self.is_blocked and not self.wait_outer_hendler:
             self.busy_time += 1
         else:
             self.idle_time += 1
+            
+        self.rps.append(self.res_count / (self.busy_time))
         
-        self.responces_count.append(len(self.responces))
+        self.responces_count.append(self.res_count)
         return
     
     def set_task(self):
@@ -115,7 +126,7 @@ class Pod:
         """
         
         self.task_in_work = self.queue_tasks.popleft()
-        print("Pod.update_time:", self.actual_hendlers)
+        # print("Pod.update_time:", self.actual_hendlers)
         self.actual_hendlers = copy.deepcopy(self.hendlers.get(self.task_in_work.handler_id))
         self.is_blocked = True
         self.working_time = self.actual_hendlers.local_time

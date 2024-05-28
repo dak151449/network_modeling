@@ -20,8 +20,8 @@ class Balancer:
     # closed_tasks: list[task.Task] = []
     
     
-    def __init__(self, f, srvs: list[Service]) -> None:
-        self.balance_f = f
+    def __init__(self, f_b, srvs: list[Service]) -> None:
+        self.balance_f = f_b.balance_f
         # сгенерировать 3 пода и сервисы им
         for s in srvs:
             self.srvs[s.name] = s
@@ -35,15 +35,15 @@ class Balancer:
         return
     
     def get_func_balance(self):
-        balance_count = 1
+        balance_count = 10
         
-        print("get_func_balance", const.tasks)
+        # print("get_func_balance", const.tasks)
         # for i in range(min(balance_count, len(const.tasks))):
         i = 0
         count_new_task = 0
         while count_new_task < min(balance_count, len(const.tasks)) and i < len(const.tasks):
             # if const.tasks[i].stack_service != -1:
-            print("Task " + str(const.tasks[i].id), const.tasks[i].is_closed, const.tasks[i].in_work)
+            # print("Task " + const.tasks[i].id, const.tasks[i].is_closed, const.tasks[i].in_work)
             if not const.tasks[i].is_closed and not const.tasks[i].in_work:
                 handler_id = const.tasks[i].handler_id
                 
@@ -51,6 +51,9 @@ class Balancer:
                 service_name = self.get_service_name_by_hendler_id(handler_id)
                 # print("get_service_name_by_hendler_id-", service_name, handler_id)
                 actual_pods, act_pods_ids = self.get_pods_by_srv_id(service_name)
+                if actual_pods == []:
+                    i += 1
+                    continue
                 t, new_pods = self.balance_f(const.tasks[i], actual_pods)
        
                 self.update_pods(service_name, new_pods, act_pods_ids)
@@ -64,7 +67,7 @@ class Balancer:
                     # update pod->service-> .wait_outer_hendler = False
                     # надо найти конкретный под и сервис
                     # self.srvs[t.stack_service].service.wait_outer_hendler = False
-                    print(t)
+                    # print(t)
                     for pi in self.srvs:
                         for p in self.srvs[pi].pods:
                             if p.id == t.stack_service:
@@ -115,7 +118,7 @@ class Balancer:
         """
         
         for k in self.srvs:
-            print("Update time:", k, "++++++++++++++++++++++++++")
+            # print("Update time:", k, "++++++++++++++++++++++++++")
             self.srvs[k].update_time()
         return
     

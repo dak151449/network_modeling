@@ -3,35 +3,58 @@ import random
 from app.objects.pod import Pod
 
 
-
-
-
-def test(task, pods: list[Pod]):
-    if pods == []:
-        return task, pods
-    i = random.randint(0, len(pods) - 1)
-    pods[i].add_task(task)
-    return task, pods
-
-def LeastResponseTimeBalancer(task, pods: list[Pod]):
-    if pods == []:
-        return task, pods
-    
-    mi = -1
-    ms = 10**10
-    for i in range(len(pods)):
-        s = []
-        for r in pods[i].responces:
-            s.append(r.end_global_time - r.start_global_time)
-
-        print("LeastResponseTimeBalancer:", pods[i].name, "+++++++++++++++ ", s ," +++++++++++++++++")
-        if len(s) == 0:
-            s = [0]
+class Func_balancer:
+    def __init__(self, name_f):
+        self.fs: dict[str, function] = {"test": self.test, "LeastResponseTimeBalancer": self.LeastResponseTimeBalancer,
+                                        "LeastConnectionsBalancer": self.LeastConnectionsBalancer}
         
-        if ms > min(s) :
-            mi = i
-            ms = min(s)
-            
-    pods[mi].add_task(task)
-    
-    return task, pods
+        self.balance_f = self.fs[name_f]
+        # self.servers = servers
+        self.current_server_index = 0
+
+    def test(self, task, pods: list[Pod]):
+        if pods == []:
+            return task, pods
+        i = random.randint(0, len(pods) - 1)
+        pods[i].add_task(task)
+        return task, pods
+
+    def LeastResponseTimeBalancer(self, task, pods: list[Pod]):
+        if pods == []:
+            return task, pods
+        
+        mi = -1
+        ms = 10**10
+        for i in range(len(pods)):
+            s = pods[i].responces_time_avg
+
+            if ms > s:
+                mi = i
+                ms = s
+                
+        pods[mi].add_task(task)
+        
+        return task, pods
+
+    def LeastConnectionsBalancer(self, task, pods: list[Pod]):
+        if pods == []:
+            return task, pods
+        
+        mi = -1
+        ms = 10**10
+        for i in range(len(pods)):
+            s = len(pods[i].queue_tasks)
+
+            if ms > s:
+                mi = i
+                ms = s
+                
+        pods[mi].add_task(task)
+        
+        return task, pods
+
+    def balance(self):
+        current_server = self.servers[self.current_server_index]
+        self.current_server_index = (self.current_server_index + 1) % len(self.servers)
+        
+        return current_server
