@@ -6,7 +6,11 @@ from app.global_constants import const
 from app.stats.stats import *
 from app.generate_task import Generator
 
-
+def get_types_hendlers(hs):
+    event_types = []
+    for h in hs:
+        event_types.append(h.id)
+    return event_types
 
 
 
@@ -24,7 +28,6 @@ const.tasks = []
 g = Generator(handlers, generato_data)
 print("Generator")
 
-
 m = Model(Func_balancer("test"), srvs, g)
 m.modeling()
 print("END MODELING")
@@ -38,6 +41,8 @@ for s in const.subtask_closed:
     print(s)
     print("---------------------------")
 
-print_stats(m)
-    
+print_stats(m, get_types_hendlers(handlers))
+
+
+print_global_stat(m, get_types_hendlers(handlers))  
     

@@ -3,7 +3,7 @@ from app.objects.task import Task
 
 
 
-STOP_TIME = 10000 * 100
+STOP_TIME = 10000 * 50
 """остановка моделирования по истечению времени
 """
 

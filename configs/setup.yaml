@@ -1,6 +1,6 @@
 srvs:
   - service_name: A
-    count_pods: 3
+    count_pods: 6
     max_length_queue_task: 10
     handlers:
       - handler: 1
@@ -12,7 +12,7 @@ srvs:
         time: 100
   
   - service_name: B
-    count_pods: 3
+    count_pods: 6
     max_length_queue_task: 10
     handlers:
       - handler: 3
@@ -22,6 +22,6 @@ srvs:
         probability: 0.25
         time: 50
 generator:
-  interval: 100
+  interval: 1000
   count_in_iteration: 5
   
