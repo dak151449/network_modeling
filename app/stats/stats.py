@@ -97,6 +97,8 @@ def print_global_stat(model: Model, event_types):
     print_s()
     Count_task_canceld(model)
     print_s()
+    Count_task_balancer_canceld(model)
+    print_s()
     return
 
 
@@ -176,6 +178,13 @@ def Idle_time(model: Model):
 def Count_task_canceld_in_model(model: Model):
     for t in model.balancer.tx_stats_count:
         print(f"Общее количество отмененных транзакций типа {t}:",model.balancer.tx_stats_count_canceld[t])
+ 
+def Count_task_balancer_canceld(model: Model):
+    print(f"Общее количество отмененных транзакций балансировщиком:")
+    for s in model.balancer_count_canceld:
+        tab = "    "
+        print(tab, f"Тип {s}: {model.balancer_count_canceld[s]}")
+    return
         
 def Count_task_canceld(model: Model):
     for s in model.balancer.srvs:

@@ -10,7 +10,7 @@ from app.global_constants import const
 
 class Pod:
 
-    def __init__(self, name: str, hs: dict[int, Handler], max_length_queue_task: int = 100 ,w: int = 1) -> None:
+    def __init__(self, name: str, hs: dict[int, Handler], max_length_queue_task, w: int = 1) -> None:
         self.id  = str(uuid.uuid1())
         self.queue_tasks: deque = deque()
         

@@ -11,11 +11,14 @@ class Func_balancer:
                                         "RoundRobinBalancer": self.RoundRobinBalancer,
                                         "WeightedRoundRobinBalancer": self.WeightedRoundRobinBalancer}
         
-        self.balance_f = self.fs[name_f]
+        self.balance_f = self.fs.get(name_f)
+        if self.balance_f == None:
+            print(f"Функция балансировки {name_f} не реализована")
+            exit(1)
         
         if name_f == "WeightedRoundRobinBalancer" and srv_t == None:
             print("Для алгоритма балансировки WeightedRoundRobinBalancer в конфигурации системы надо ввести веса")
-            exit()
+            exit(1)
         
         self.srv_i: dict[str, int] = {}
         print(srv_t)

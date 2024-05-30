@@ -14,21 +14,14 @@ def get_types_hendlers(hs):
 
 
 
-srvs, handlers, generato_data = download_config.get_services()
-
-print(srvs, generato_data, handlers)
-
-
-
-# const.tasks = [Task("test1", 1), Task("test2", 1), Task("test8", 1), Task("test9", 2), Task("test10", 2), Task("test3", 3), Task("test4", 3), Task("test5", 3), Task("test6", 3), Task("test7", 3), Task("test11", 1)]
-# const.tasks = const.set_start_tasks(const.tasks)
+srvs, handlers, generato_data, b_max_length_queue_task, f_balancer  = download_config.get_services()
 
 const.tasks = []
 
 g = Generator(handlers, generato_data)
 print("Generator")
 
-m = Model(Func_balancer("RoundRobinBalancer", srvs), srvs, g, get_types_hendlers(handlers))
+m = Model(Func_balancer(f_balancer, srvs), srvs, g, get_types_hendlers(handlers), b_max_length_queue_task)
 m.modeling()
 print("END MODELING")
 # print("CLOSE TASK")
@@ -42,7 +35,6 @@ print("END MODELING")
 #     print("---------------------------")
 
 print_stats(m, get_types_hendlers(handlers))
-
 
 print_global_stat(m, get_types_hendlers(handlers))  
     

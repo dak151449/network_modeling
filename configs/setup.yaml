@@ -1,3 +1,6 @@
+balancer:
+  max_length_queue_task: 100
+  function: test
 srvs:
   - service_name: A
     pods_weight: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -26,5 +29,4 @@ srvs:
         time: 50
 generator:
   interval: 200
-  count_in_iteration: 5
-  
+  count_in_iteration: 20

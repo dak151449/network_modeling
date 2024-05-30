@@ -27,9 +27,10 @@ class Balancer:
     """словарь тип транзакции -> общее количество отмененных таких транзакций"""
     
     
-    def __init__(self, f_b, srvs: list[Service], types_tx) -> None:
+    def __init__(self, f_b, srvs: list[Service], types_tx, b_max_length_queue_task) -> None:
         self.balance_f = f_b.balance_f
         # сгенерировать 3 пода и сервисы им
+        self.b_max_length_queue_task = b_max_length_queue_task
         
         for tx in types_tx:
             self.tx_stats_count[tx] = 0

@@ -10,7 +10,7 @@ from app.objects.handler import Handler
 # По сути это деплой те развернутый сервис в конкретном поде
 class Service:
 # ----------------------------------------------- 
-    def __init__(self, name: str, hs: dict[int,Handler], count_pods: int, pods_w: list[int]) -> None:
+    def __init__(self, name: str, hs: dict[int,Handler], max_length_queue_task,  count_pods: int, pods_w: list[int]) -> None:
         self.name: str = name
         """название сервиса (задается клиентом в конфиге)"""
 
@@ -21,9 +21,9 @@ class Service:
         
         for i in range(count_pods):
             if pods_w != None:
-                self.pods.append(Pod(name, hs, pods_w[i]))
+                self.pods.append(Pod(name, hs, max_length_queue_task, pods_w[i]))
             else:
-                self.pods.append(Pod(name, hs))
+                self.pods.append(Pod(name, max_length_queue_task, hs))
         
         
         
