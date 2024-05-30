@@ -8,8 +8,8 @@ from app.generate_task import Generator
 class Model:
     balancer: Balancer = None
     
-    def __init__(self, f, srvs: list[Service], g: Generator):
-        self.balancer = Balancer(f, srvs)
+    def __init__(self, f, srvs: list[Service], g: Generator, types_tx):
+        self.balancer = Balancer(f, srvs, types_tx)
         self.generator = g
         
     def modeling(self):

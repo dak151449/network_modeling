@@ -38,7 +38,7 @@ class Generator():
     
     def generate_random_task(self) -> Task:
         if random.randint(0, 1):
-            return Task(str(uuid.uuid1()), random.randint(1, 4))
+            return Task(str(uuid.uuid1()), random.randint(1, 4), const.global_time)
         
         
     def schedule_events(self):
@@ -53,7 +53,7 @@ class Generator():
             self.generate_event(event_type)
         
     def generate_event(self, event_type: int):
-        const.tasks.append(Task(str(uuid.uuid1()), event_type))
+        const.tasks.append(Task(str(uuid.uuid1()), event_type, const.global_time))
         return 
         
     

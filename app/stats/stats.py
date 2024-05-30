@@ -76,65 +76,57 @@ def print_global_stat(model: Model, event_types):
         model (Model): _description_
     """
     System_performance(model)
-    
+    print_s()
     Number_of_transactions_serviced(model)
+    print_s()
     Average_time_spent_in_system(model, event_types)
-    
+    print_s()
     Average_waiting_time_in_srv_queue(model, event_types)
+    print_s()
     Average_waiting_time_in_balancer_queue(model, event_types)
-    
+    print_s()
     Average_queue_length_in_balancer(model)
-    
+    print_s()
     Average_queue_length_in_srv(model)
+    print_s()
+    Busy_time(model)
+    print_s()
+    Idle_time(model)
+    print_s()
+    Count_task_canceld_in_model(model)
+    print_s()
+    Count_task_canceld(model)
+    print_s()
     return
 
 
 def Number_of_transactions_serviced(model: Model):
-    
-    print("Количество обслуженных транзакций:", len(const.closed_tasks) + len(const.subtask_closed))
+    c = 0
+    for t in model.balancer.tx_stats_count:
+        c += model.balancer.tx_stats_count[t]
+        
+    print("Количество обслуженных транзакций:", c)
     print("    Общее количество транзакций (единиц работы), которые прошли через систему или её отдельные компоненты.")
     return
 
 def Average_time_spent_in_system(model: Model, event_types):
-    txs = const.closed_tasks + const.subtask_closed
-    
-    
-    for id in event_types:
-        s = 0
-        for t in txs:
-            if t.handler_id == id:
-                s += (t.end_global_time - t.start_global_time)
+    for t in model.balancer.tx_stats_count:
+        print(f"Среднее время пребывания в системе транзакции типа {t}:",model.balancer.tx_stats_time[t] / model.balancer.tx_stats_count[t])
         
-        print(f"Среднее время пребывания в системе транзакции типа {id}:", s / len(txs))
         
     
 def Average_waiting_time_in_srv_queue(model: Model, event_types):
-    txs = const.closed_tasks + const.subtask_closed
-    
-    
-    for id in event_types:
+    for srv in model.balancer.srvs:
         s = 0
-        si = 0
-        for t in txs:
-            if t.handler_id == id:
-                s += (t.end_time_in_pod_que - t.start_time_in_pod_que)
-                si += 1
+        for p in model.balancer.srvs[srv].pods:
+            if p.res_count != 0:
+                s += p.waiting_time_in_srv_queue / p.res_count
         
-        print(f"Среднее время ожидания в очереди сервиса транзакции типа {id}:", s / si)
+        print(f"Среднее время ожидания в очереди сервиса транзакции типа {srv}:", s / len(model.balancer.srvs[srv].pods))
         
 def Average_waiting_time_in_balancer_queue(model: Model, event_types):
-    txs = const.closed_tasks + const.subtask_closed
-    
-    
-    for id in event_types:
-        s = 0
-        si = 0
-        for t in txs:
-            if t.handler_id == id:
-                s += (t.end_time_in_balancer_que - t.start_time_in_balancer_que)
-                si += 1
-        
-        print(f"Среднее время ожидания в очереди балансировщика транзакции типа {id}:", s / si)
+    for t in model.balancer.tx_stats_count:
+        print(f"Среднее время ожидания в очереди балансировщика транзакции типа {t}:",model.balancer.tx_stats_balance_time[t])
         
 def Average_queue_length_in_balancer(model: Model):
     # model.balancer.
@@ -154,5 +146,46 @@ def Average_queue_length_in_srv(model: Model):
             pi += 1
 
 def System_performance(model: Model):
-    print("Производительность системы:", (len(const.closed_tasks) + len(const.subtask_closed))/ const.STOP_TIME)
+    c = 0
+    for t in model.balancer.tx_stats_count:
+        c += model.balancer.tx_stats_count[t]
+    
+    print("Производительность системы:", c / const.STOP_TIME)
+    return
+
+def Busy_time(model: Model):
+    for s in model.balancer.srvs:
+        print(f"Общее время в процентах, в течение которого устройство {s} было занято обслуживанием транзакций:")
+        tab = "    "
+        pi = 0
+        for p in model.balancer.srvs[s].pods:
+            print(tab, f"Образ {pi}: {(p.busy_time / const.global_time) * 100}%")
+            pi += 1
+    return
+
+def Idle_time(model: Model):
+    for s in model.balancer.srvs:
+        print(f"Общее время в процентах, в течение которого устройство {s} простаивало, то есть не выполняло никаких задач:")
+        tab = "    "
+        pi = 0
+        for p in model.balancer.srvs[s].pods:
+            print(tab, f"Образ {pi}: {(p.idle_time / const.global_time) * 100}%")
+            pi += 1
+    return
+
+def Count_task_canceld_in_model(model: Model):
+    for t in model.balancer.tx_stats_count:
+        print(f"Общее количество отмененных транзакций типа {t}:",model.balancer.tx_stats_count_canceld[t])
+        
+def Count_task_canceld(model: Model):
+    for s in model.balancer.srvs:
+        print(f"Общее количество отмененных транзакций у сервиса {s}:")
+        tab = "    "
+        pi = 0
+        for p in model.balancer.srvs[s].pods:
+            print(tab, f"Образ {pi}: {p.count_task_canceld}")
+            pi += 1
+
+def print_s():
+    print("--------------------------------------------------")
     return

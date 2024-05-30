@@ -10,7 +10,7 @@ from app.objects.handler import Handler
 # По сути это деплой те развернутый сервис в конкретном поде
 class Service:
 # ----------------------------------------------- 
-    def __init__(self, name: str, hs: dict[int,Handler], count_pods: int) -> None:
+    def __init__(self, name: str, hs: dict[int,Handler], count_pods: int, pods_w: list[int]) -> None:
         self.name: str = name
         """название сервиса (задается клиентом в конфиге)"""
 
@@ -20,7 +20,10 @@ class Service:
         """словарь хендлеров у деплоя: id_хендлера -> handler"""
         
         for i in range(count_pods):
-            self.pods.append(Pod(name, hs))
+            if pods_w != None:
+                self.pods.append(Pod(name, hs, pods_w[i]))
+            else:
+                self.pods.append(Pod(name, hs))
         
         
         

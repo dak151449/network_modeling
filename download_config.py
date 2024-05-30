@@ -39,4 +39,12 @@ def generate_srv(data) -> Service:
         handlers[h_id] = handler
         hs.append(handler)
     print("count_pods:", data.get("count_pods"))
-    return Service(data.get("service_name"), handlers, int(str(data.get("count_pods")))), hs
+    
+    
+    p_w = data.get("pods_weight")
+    pods_count = data.get("count_pods")
+    if pods_count == None or (p_w !=None and len(p_w) != pods_count):
+        print("pods_count должно совпадать с количество элементов в pods_weight")
+        exit()
+    
+    return Service(data.get("service_name"), handlers, pods_count, p_w), hs

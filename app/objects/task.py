@@ -1,5 +1,5 @@
 class Task:
-    def __init__(self, id: str, handler_id: int) -> None:
+    def __init__(self, id: str, handler_id: int, global_time: int) -> None:
         self.id = id
         """название задачи"""
         self.handler_id = handler_id
@@ -9,11 +9,12 @@ class Task:
     
         self.in_work: bool = False
         self.is_closed: bool = False
+        self.is_canceld: bool = False
         
-        self.start_global_time: int = -1
+        self.start_global_time: int = global_time
         self.end_global_time: int = -1
         
-        self.start_time_in_balancer_que: int = -1
+        self.start_time_in_balancer_que: int = global_time
         self.end_time_in_balancer_que: int = -1
         
         self.start_time_in_pod_que: int = -1

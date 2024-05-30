@@ -18,11 +18,25 @@ class Balancer:
     """
     
     # closed_tasks: list[task.Task] = []
+    tx_stats_balance_time: dict[any, int] = {}
+    tx_stats_time: dict[any, int] = {}
+    """словарь тип транзакции -> общее време прибывания в системе всех таких транзакций""" 
+    tx_stats_count: dict[any, int] = {}
+    """словарь тип транзакции -> общее количество таких транзакций"""
+    tx_stats_count_canceld: dict[any, int] = {}
+    """словарь тип транзакции -> общее количество отмененных таких транзакций"""
     
     
-    def __init__(self, f_b, srvs: list[Service]) -> None:
+    def __init__(self, f_b, srvs: list[Service], types_tx) -> None:
         self.balance_f = f_b.balance_f
         # сгенерировать 3 пода и сервисы им
+        
+        for tx in types_tx:
+            self.tx_stats_count[tx] = 0
+            self.tx_stats_time[tx] = 0
+            self.tx_stats_count_canceld[tx] = 0
+            self.tx_stats_balance_time[tx] = 0
+            
         for s in srvs:
             self.srvs[s.name] = s
             
@@ -59,6 +73,8 @@ class Balancer:
                 self.update_pods(service_name, new_pods, act_pods_ids)
                 const.tasks[i].in_work = True
                 count_new_task += 1
+                
+                self.tx_stats_balance_time[const.tasks[i].handler_id] = (self.tx_stats_balance_time[const.tasks[i].handler_id] + const.global_time - const.tasks[i].start_time_in_balancer_que) / 2
             elif const.tasks[i].is_closed:
                 t = const.tasks[i]
                 del const.tasks[i]
@@ -66,15 +82,36 @@ class Balancer:
                 if t.stack_service != -1:
                     # update pod->service-> .wait_outer_hendler = False
                     # надо найти конкретный под и сервис
-                    # self.srvs[t.stack_service].service.wait_outer_hendler = False
-                    # print(t)
+
+                    check = False
                     for pi in self.srvs:
                         for p in self.srvs[pi].pods:
                             if p.id == t.stack_service:
                                 p.wait_outer_hendler = False
-                    
-                    const.subtask_closed.append(t)
-                const.closed_tasks.append(t)
+                                check = True
+                                break
+                        if check:
+                            break
+                        
+                    # const.subtask_closed.append(t)
+                # const.closed_tasks.append(t)
+                self.tx_stats_count[t.handler_id] += 1
+                self.tx_stats_time[t.handler_id] += t.end_global_time - t.start_global_time
+            elif const.tasks[i].is_canceld:
+                t = const.tasks[i]
+                del const.tasks[i]
+                if t.stack_service != -1:
+                    check = False
+                    for pi in self.srvs:
+                        for p in self.srvs[pi].pods:
+                            if p.id == t.stack_service:
+                                p.is_cancel_actual_task = True
+                                check = True
+                                break
+                        if check:
+                            break
+                self.tx_stats_count_canceld[t.handler_id] += 1
+                
             i += 1      
         return
     

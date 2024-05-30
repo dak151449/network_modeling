@@ -28,18 +28,18 @@ const.tasks = []
 g = Generator(handlers, generato_data)
 print("Generator")
 
-m = Model(Func_balancer("test"), srvs, g)
+m = Model(Func_balancer("RoundRobinBalancer", srvs), srvs, g, get_types_hendlers(handlers))
 m.modeling()
 print("END MODELING")
-print("CLOSE TASK")
-for s in const.closed_tasks:
-    print(s)
-    print("---------------------------")
-print()
-print("CLOSE SUBTASK")
-for s in const.subtask_closed:
-    print(s)
-    print("---------------------------")
+# print("CLOSE TASK")
+# for s in const.closed_tasks:
+#     print(s)
+#     print("---------------------------")
+# print()
+# print("CLOSE SUBTASK")
+# for s in const.subtask_closed:
+#     print(s)
+#     print("---------------------------")
 
 print_stats(m, get_types_hendlers(handlers))
 
