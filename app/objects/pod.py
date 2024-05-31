@@ -89,7 +89,6 @@ class Pod:
             self.wait_outer_hendler = False 
             return
         
-        # print("Service.update_time", self.actual_hendlers, "-------- Serv:", self.name+self.id)
         if self.actual_hendlers.way != [] and not self.wait_outer_hendler:
             handler_id = self.actual_hendlers.way.pop()
             # создаем sub task и кладем её в балансировщик
@@ -102,7 +101,6 @@ class Pod:
             
             # заблокированы до ответа другой ручки
             self.wait_outer_hendler = True
-            # print("Subtask  ", sub_task)
             return
         
         

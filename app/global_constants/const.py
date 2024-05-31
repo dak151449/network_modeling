@@ -8,18 +8,10 @@ STOP_TIME = 10000 * 50
 """
 
 global_time = 1
-# b = Balancer(test)
 tasks: list[Task] = []
 closed_tasks: list[Task] = []
 subtask_closed: list[Task] = []
 
-# def update_task_is_closed(task_id: str):
-#     for i in range(len(tasks)):
-#         if tasks[i].id == task_id:
-#             tasks[i].is_closed = True
-#             tasks[i].end_global_time = global_time
-#             return
-        
     
         
 def set_start_tasks(tasks: list[Task]) -> list[Task]:

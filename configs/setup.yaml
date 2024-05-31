@@ -1,6 +1,8 @@
+model:
+  stop_time: 100000
 balancer:
   max_length_queue_task: 100
-  function: test
+  function: WeightedRoundRobinBalancer
 srvs:
   - service_name: A
     pods_weight: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -10,7 +12,7 @@ srvs:
       - handler: 1
         probability: 0.25
         time: 50
-        way: [3, 4]
+        way: [3, 2]
       - handler: 2
         probability: 0.25
         time: 50

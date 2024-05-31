@@ -14,7 +14,7 @@ def get_types_hendlers(hs):
 
 
 
-srvs, handlers, generato_data, b_max_length_queue_task, f_balancer  = download_config.get_services()
+srvs, handlers, generato_data, b_max_length_queue_task, f_balancer, const.STOP_TIME  = download_config.get_services()
 
 const.tasks = []
 

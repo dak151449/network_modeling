@@ -51,20 +51,15 @@ class Balancer:
     
     def get_func_balance(self):
         balance_count = 10
-        
-        # print("get_func_balance", const.tasks)
-        # for i in range(min(balance_count, len(const.tasks))):
+
         i = 0
         count_new_task = 0
         while count_new_task < min(balance_count, len(const.tasks)) and i < len(const.tasks):
-            # if const.tasks[i].stack_service != -1:
-            # print("Task " + const.tasks[i].id, const.tasks[i].is_closed, const.tasks[i].in_work)
             if not const.tasks[i].is_closed and not const.tasks[i].in_work:
                 handler_id = const.tasks[i].handler_id
                 
                 ## по handler_id доставать имя сервиса
                 service_name = self.get_service_name_by_hendler_id(handler_id)
-                # print("get_service_name_by_hendler_id-", service_name, handler_id)
                 actual_pods, act_pods_ids = self.get_pods_by_srv_id(service_name)
                 if actual_pods == []:
                     i += 1

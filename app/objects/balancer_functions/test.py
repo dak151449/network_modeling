@@ -41,13 +41,16 @@ class Func_balancer:
         
         mi = -1
         ms = 10**10
+        # print("--------------")
         for i in range(len(pods)):
             s = pods[i].responces_time_avg
-
+            # print(pods[i].id, "=========", s)
             if ms > s:
                 mi = i
                 ms = s
-                
+                # print(f"New mi = {mi} ms = {ms}")
+        
+        # print("WIN: ", pods[mi].id, " ", pods[mi].responces_time_avg)
         pods[mi].add_task(task)
         
         return task, pods
