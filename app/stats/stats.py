@@ -93,11 +93,11 @@ def print_global_stat(model: Model, event_types):
     print_s()
     Idle_time(model)
     print_s()
-    Count_task_canceld_in_model(model)
+    Count_task_canceled_in_model(model)
     print_s()
-    Count_task_canceld(model)
+    Count_task_canceled(model)
     print_s()
-    Count_task_balancer_canceld(model)
+    Count_task_balancer_canceled(model)
     print_s()
     return
 
@@ -113,7 +113,10 @@ def Number_of_transactions_serviced(model: Model):
 
 def Average_time_spent_in_system(model: Model, event_types):
     for t in model.balancer.tx_stats_count:
-        print(f"Среднее время пребывания в системе транзакции типа {t}:",model.balancer.tx_stats_time[t] / model.balancer.tx_stats_count[t])
+        if model.balancer.tx_stats_count[t] == 0:
+            print(f"Среднее время пребывания в системе транзакции типа {t}:",0)
+        else:
+            print(f"Среднее время пребывания в системе транзакции типа {t}:",model.balancer.tx_stats_time[t] / model.balancer.tx_stats_count[t])
         
         
     
@@ -175,24 +178,24 @@ def Idle_time(model: Model):
             pi += 1
     return
 
-def Count_task_canceld_in_model(model: Model):
+def Count_task_canceled_in_model(model: Model):
     for t in model.balancer.tx_stats_count:
-        print(f"Общее количество отмененных транзакций типа {t}:",model.balancer.tx_stats_count_canceld[t])
+        print(f"Общее количество отмененных транзакций типа {t}:",model.balancer.tx_stats_count_canceled[t])
  
-def Count_task_balancer_canceld(model: Model):
+def Count_task_balancer_canceled(model: Model):
     print(f"Общее количество отмененных транзакций балансировщиком:")
-    for s in model.balancer_count_canceld:
+    for s in model.balancer_count_canceled:
         tab = "    "
-        print(tab, f"Тип {s}: {model.balancer_count_canceld[s]}")
+        print(tab, f"Тип {s}: {model.balancer_count_canceled[s]}")
     return
         
-def Count_task_canceld(model: Model):
+def Count_task_canceled(model: Model):
     for s in model.balancer.srvs:
         print(f"Общее количество отмененных транзакций у сервиса {s}:")
         tab = "    "
         pi = 0
         for p in model.balancer.srvs[s].pods:
-            print(tab, f"Образ {pi}: {p.count_task_canceld}")
+            print(tab, f"Образ {pi}: {p.count_task_canceled}")
             pi += 1
 
 def print_s():

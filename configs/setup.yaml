@@ -2,11 +2,11 @@ model:
   stop_time: 100000
 balancer:
   max_length_queue_task: 100
-  function: WeightedRoundRobinBalancer
+  function: LeastResponseTimeBalancer
 srvs:
   - service_name: A
-    pods_weight: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-    count_pods: 12
+    pods_weight: [1, 1, 1, 1, 1, 1, 1, 1, 1]
+    count_pods: 9
     max_length_queue_task: 100
     handlers:
       - handler: 1
@@ -18,9 +18,9 @@ srvs:
         time: 50
   
   - service_name: B
-    pods_weight: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    pods_weight: [1, 1, 1]
     weight: 1
-    count_pods: 12
+    count_pods: 3
     max_length_queue_task: 100
     handlers:
       - handler: 3
@@ -31,4 +31,4 @@ srvs:
         time: 50
 generator:
   interval: 200
-  count_in_iteration: 20
+  count_in_iteration: 5

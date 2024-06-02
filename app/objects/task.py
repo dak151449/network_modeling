@@ -9,7 +9,7 @@ class Task:
     
         self.in_work: bool = False
         self.is_closed: bool = False
-        self.is_canceld: bool = False
+        self.is_canceled: bool = False
         
         self.start_global_time: int = global_time
         self.end_global_time: int = -1
@@ -42,21 +42,3 @@ class Task:
         
         
         return s
-
-    def add_service_to_stack(self, service_id) -> None:
-        """Задает stack_service 
-
-        Args:
-            service_id (_type_): id сервиса (пода) от которого пришла задача
-        """
-        self.stack_service = service_id
-
-    def pop_service_id_from_stack(self) -> int:
-        """возвращает и сбрасывает id пода родителя taski
-
-        Returns:
-            int: id пода родителя taski 
-        """
-        out = self.stack_service 
-        self.stack_service = -1 # сбрасываем на всякий случай
-        return out

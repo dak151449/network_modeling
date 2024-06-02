@@ -23,7 +23,7 @@ class Balancer:
     """словарь тип транзакции -> общее време прибывания в системе всех таких транзакций""" 
     tx_stats_count: dict[any, int] = {}
     """словарь тип транзакции -> общее количество таких транзакций"""
-    tx_stats_count_canceld: dict[any, int] = {}
+    tx_stats_count_canceled: dict[any, int] = {}
     """словарь тип транзакции -> общее количество отмененных таких транзакций"""
     
     
@@ -35,7 +35,7 @@ class Balancer:
         for tx in types_tx:
             self.tx_stats_count[tx] = 0
             self.tx_stats_time[tx] = 0
-            self.tx_stats_count_canceld[tx] = 0
+            self.tx_stats_count_canceled[tx] = 0
             self.tx_stats_balance_time[tx] = 0
             
         for s in srvs:
@@ -50,7 +50,7 @@ class Balancer:
         return
     
     def get_func_balance(self):
-        balance_count = 10
+        balance_count = 20
 
         i = 0
         count_new_task = 0
@@ -93,7 +93,7 @@ class Balancer:
                 # const.closed_tasks.append(t)
                 self.tx_stats_count[t.handler_id] += 1
                 self.tx_stats_time[t.handler_id] += t.end_global_time - t.start_global_time
-            elif const.tasks[i].is_canceld:
+            elif const.tasks[i].is_canceled:
                 t = const.tasks[i]
                 del const.tasks[i]
                 if t.stack_service != -1:
@@ -106,7 +106,7 @@ class Balancer:
                                 break
                         if check:
                             break
-                self.tx_stats_count_canceld[t.handler_id] += 1
+                self.tx_stats_count_canceled[t.handler_id] += 1
                 
             i += 1      
         return

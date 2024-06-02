@@ -12,10 +12,10 @@ class Model:
         self.balancer = Balancer(f, srvs, types_tx, b_max_length_queue_task)
         self.generator = g
         self.b_max_length_queue_task = b_max_length_queue_task
-        self.balancer_count_canceld: dict[any, int] = {}
+        self.balancer_count_canceled: dict[any, int] = {}
         for s in srvs:
             for h in s.hendlers:
-                self.balancer_count_canceld[h] = 0
+                self.balancer_count_canceled[h] = 0
             
     def modeling(self):
         
@@ -49,7 +49,7 @@ class Model:
         if len(const.tasks) > self.b_max_length_queue_task:
             get_cancel_t = const.tasks[self.b_max_length_queue_task:]
             for t in get_cancel_t:
-                t.is_canceld = True
-                self.balancer_count_canceld[t.handler_id] += 1
+                t.is_canceled = True
+                self.balancer_count_canceled[t.handler_id] += 1
 
         return

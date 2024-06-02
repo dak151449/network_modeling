@@ -29,7 +29,7 @@ class Pod:
         self.actual_hendlers: Handler = None
         """активный Handler"""
         self.is_cancel_actual_task: bool = False
-        self.count_task_canceld: int = 0
+        self.count_task_canceled: int = 0
  
         self.count_task_int_deque: list[int] = []
         """Количество задач в очереди с течением времени"""
@@ -62,8 +62,8 @@ class Pod:
         """
         
         if len(self.queue_tasks) >= self.max_length_queue_task:
-            task.is_canceld = True
-            self.count_task_canceld += 1
+            task.is_canceled = True
+            self.count_task_canceled += 1
             return
         
         task.end_time_in_balancer_que = const.global_time
@@ -80,10 +80,10 @@ class Pod:
         
         if self.is_cancel_actual_task == True and self.task_in_work != None:
             self.is_blocked = False
-            self.task_in_work.is_canceld = True
+            self.task_in_work.is_canceled = True
             # self.task_in_work.end_work_time = const.global_time
             # self.task_in_work.end_global_time = const.global_time
-            self.count_task_canceld += 1
+            self.count_task_canceled += 1
             self.task_in_work = None
             self.is_cancel_actual_task = False
             self.wait_outer_hendler = False 
@@ -118,8 +118,6 @@ class Pod:
                  
                 # self.busy_time += self.task_in_work.end_work_time - self.task_in_work.start_work_time
                 
-                self.responces_time_avg = self.busy_time / self.res_count
-                
                 self.task_in_work = None
                 # const.update_task_is_closed(self.task_in_work.id)
         return
@@ -137,7 +135,10 @@ class Pod:
             self.idle_time += 1
             
         self.rps.append(self.res_count / (self.busy_time))
-        
+        if self.res_count != 0:
+            self.responces_time_avg = self.busy_time / self.res_count
+        else:
+            self.responces_time_avg = self.busy_time / 1
         # self.responces_count.append(self.res_count)
         return
     
@@ -161,5 +162,5 @@ class Pod:
         return
     
     def cancel_actual_task(self):
-        self.task_in_work.is_canceld = True
-        self.count_task_canceld += 1
+        self.task_in_work.is_canceled = True
+        self.count_task_canceled += 1

@@ -24,8 +24,6 @@ class Func_balancer:
         print(srv_t)
         for s in srv_t:
             self.srv_i[s.name] = 0
-        
-        # self.servers = servers
         self.current_server_index = 0
 
     def test(self, task, pods: list[Pod]):
@@ -41,18 +39,15 @@ class Func_balancer:
         
         mi = -1
         ms = 10**10
-        # print("--------------")
+        print("-----------------------------------")
         for i in range(len(pods)):
             s = pods[i].responces_time_avg
-            # print(pods[i].id, "=========", s)
+            print("Pods", i, " = ", s, "ms =", ms, "mi =", mi)
             if ms > s:
                 mi = i
                 ms = s
-                # print(f"New mi = {mi} ms = {ms}")
-        
-        # print("WIN: ", pods[mi].id, " ", pods[mi].responces_time_avg)
+        print("WIN mi =", mi)
         pods[mi].add_task(task)
-        
         return task, pods
 
     def LeastConnectionsBalancer(self, task, pods: list[Pod]):
