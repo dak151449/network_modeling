@@ -1,2 +1,4 @@
 out.txt
 *__pycache__*
+*.txt
+*.png
