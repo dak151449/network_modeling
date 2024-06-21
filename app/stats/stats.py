@@ -28,9 +28,9 @@ def print_stats(model: Model, event_types):
             # plt.plot(p.service.rps, label='y = 2', linestyle='-.', marker='s')
             number_pod += 1
         # Добавление заголовков и меток
-        plt.title('RPS сервиса ' + i)
-        plt.xlabel('time')
-        plt.ylabel('rps')
+        plt.title('Количество обрабатываемых транзакций за единицу времени у сервиса ' + i)
+        plt.xlabel('время')
+        plt.ylabel('колимчество транзакций')
 
         # Отображение легенды
         plt.legend()
@@ -56,9 +56,9 @@ def print_stats(model: Model, event_types):
 
             number_pod += 1
         # Добавление заголовков и меток
-        plt.title('COUNT_QUE сервиса ' + i)
-        plt.xlabel('time')
-        plt.ylabel('count task')
+        plt.title('Длинна очереди с течением времени сервиса ' + i)
+        plt.xlabel('время')
+        plt.ylabel('количество задач в очереди')
 
         # Отображение легенды
         plt.legend()
@@ -75,6 +75,9 @@ def print_global_stat(model: Model, event_types):
     Args:
         model (Model): _description_
     """
+    print_s()
+    System_all_task(model)
+    print_s()
     System_performance(model)
     print_s()
     Number_of_transactions_serviced(model)
@@ -101,6 +104,14 @@ def print_global_stat(model: Model, event_types):
     print_s()
     return
 
+def System_all_task(model: Model):
+    print(f"Всего сгенерировано {const.all_task_count} задач.")
+    s = 0
+    for t in model.balancer.tx_stats_count:
+        s += model.balancer.tx_stats_count_canceled[t]
+    
+    if s != 0:
+        print(f"Потеряно {(s/const.all_task_count)*100}%")
 
 def Number_of_transactions_serviced(model: Model):
     c = 0
@@ -147,7 +158,7 @@ def Average_queue_length_in_srv(model: Model):
         tab = "    "
         pi = 0
         for p in model.balancer.srvs[s].pods:
-            print(tab, f"Образ {pi}:", np.average(p.count_task_int_deque))
+            print(tab, f"Образ {pi}:", int(np.average(p.count_task_int_deque)))
             pi += 1
 
 def System_performance(model: Model):

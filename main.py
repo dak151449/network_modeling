@@ -13,13 +13,13 @@ def get_types_hendlers(hs):
     return event_types
 
 
+random.seed(152)
 
-srvs, handlers, generato_data, b_max_length_queue_task, f_balancer, const.STOP_TIME  = download_config.get_services()
+
+
+srvs, handlers, g, b_max_length_queue_task, f_balancer, const.STOP_TIME  = download_config.get_services()
 
 const.tasks = []
-
-g = Generator(handlers, generato_data)
-print("Generator")
 
 m = Model(Func_balancer(f_balancer, srvs), srvs, g, get_types_hendlers(handlers), b_max_length_queue_task)
 m.modeling()

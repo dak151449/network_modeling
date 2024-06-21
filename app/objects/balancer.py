@@ -62,16 +62,23 @@ class Balancer:
                 service_name = self.get_service_name_by_hendler_id(handler_id)
                 actual_pods, act_pods_ids = self.get_pods_by_srv_id(service_name)
                 if actual_pods == []:
+                    # print("actual_pods is [] =", const.tasks[i].handler_id)
                     i += 1
                     continue
                 t, new_pods = self.balance_f(const.tasks[i], actual_pods)
+                # print("Set task in pod =", const.tasks[i].handler_id)
        
                 self.update_pods(service_name, new_pods, act_pods_ids)
                 const.tasks[i].in_work = True
                 count_new_task += 1
                 
                 self.tx_stats_balance_time[const.tasks[i].handler_id] = (self.tx_stats_balance_time[const.tasks[i].handler_id] + const.global_time - const.tasks[i].start_time_in_balancer_que) / 2
-            elif const.tasks[i].is_closed:
+                
+            i += 1 
+        
+        i = 0
+        while i < len(const.tasks):
+            if const.tasks[i].is_closed:
                 t = const.tasks[i]
                 del const.tasks[i]
 
@@ -107,8 +114,8 @@ class Balancer:
                         if check:
                             break
                 self.tx_stats_count_canceled[t.handler_id] += 1
-                
-            i += 1      
+            i += 1
+                  
         return
     
     def get_pods_by_srv_id(self, srv_id: str) -> pod.Union[list[pod.Pod], list[int]]:

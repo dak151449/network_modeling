@@ -1,34 +1,42 @@
-model:
-  stop_time: 100000
-balancer:
-  max_length_queue_task: 100
-  function: LeastResponseTimeBalancer
-srvs:
-  - service_name: A
-    pods_weight: [1, 1, 1, 1, 1, 1, 1, 1, 1]
-    count_pods: 9
-    max_length_queue_task: 100
-    handlers:
-      - handler: 1
-        probability: 0.25
-        time: 50
-        way: [3, 2]
-      - handler: 2
-        probability: 0.25
-        time: 50
-  
-  - service_name: B
-    pods_weight: [1, 1, 1]
-    weight: 1
+model: 
+  stop_time: 1000000 
+balancer: 
+  max_length_queue_task: 1000
+  function: LeastConnectionsBalancer 
+srvs: 
+  - service_name: A 
+    pods_weight: [1, 1, 1] 
     count_pods: 3
     max_length_queue_task: 100
-    handlers:
-      - handler: 3
+    distribution:
+      - function_name: normal
+        function_args: [3, 3] 
+    handlers: 
+      - handler: 1 
+        probability: 0.25 
+        time: 10 
+        way: [3] 
+      - handler: 2 
+        probability: 0.25 
+        time: 10 
+  - service_name: B 
+    pods_weight: [1, 1, 1] 
+    weight: 1 
+    count_pods: 3
+    max_length_queue_task: 100
+    distribution:
+      - function_name: normal
+        function_args: [3, 3]
+    handlers: 
+      - handler: 3 
+        probability: 0.25 
+        time: 10 
+      - handler: 4 
         probability: 0.25
-        time: 50
-      - handler: 4
-        probability: 0.25
-        time: 50
-generator:
-  interval: 200
-  count_in_iteration: 5
+        time: 10 
+generator: 
+  interval: 200 
+  count_in_iteration: 24
+  distribution:
+    - function_name: exponential
+      function_args: [10, 5]

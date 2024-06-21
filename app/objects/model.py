@@ -30,6 +30,7 @@ class Model:
     def run_step(self):
         """Шаг 1 времени в мире
         """
+        self.generator.schedule_events()
         # положить задачи от балансировщика к подам
         self.balancer.get_func_balance()
         
@@ -39,7 +40,7 @@ class Model:
         
         self.balancer.update_metrics()
         
-        self.generator.schedule_events()
+        
         
         self.check_cancel_task()
         

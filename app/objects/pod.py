@@ -3,14 +3,14 @@ import uuid
 import copy
 from typing import *
 
+from app.distributions.distributions import Distributions
 from app.objects.handler import Handler
 # from app.objects.service import Service
 from app.objects.task import Task
 from app.global_constants import const
 
 class Pod:
-
-    def __init__(self, name: str, hs: dict[int, Handler], max_length_queue_task, w: int = 1) -> None:
+    def __init__(self, name: str, hs: dict[int, Handler], max_length_queue_task, dstr, w: int = 1) -> None:
         self.id  = str(uuid.uuid1())
         self.queue_tasks: deque = deque()
         
@@ -43,7 +43,7 @@ class Pod:
         # self.rp_count: int = 0
         """количество ответов за 1 времени"""
         
-        self.busy_time: int = 1
+        self.busy_time: int = 0
         """Busy Time: Общее время, в течение которого устройство было занято обслуживанием транзакций."""
         self.idle_time: int = 0
         """Idle Time: Общее время, в течение которого устройство простаивало, то есть не выполняло никаких задач."""
@@ -53,6 +53,11 @@ class Pod:
         
         self.weight = w
         self.max_length_queue_task = max_length_queue_task
+        
+        # функция для колебаний времени выполнения
+        self.func_disr = Distributions.f_map[dstr["function_name"]]
+        self.func_distr_args = dstr["function_args"]
+        
         
     def add_task(self, task: Task):
         """Добавляет задачи в очередь на обработку у пода
@@ -76,6 +81,7 @@ class Pod:
         """Обновляет состояние сервиса(деплоя)-пода за 1 времени
         """
         if self.actual_hendlers == None:
+            self.responces_time_avg = 0
             return
         
         if self.is_cancel_actual_task == True and self.task_in_work != None:
@@ -98,7 +104,7 @@ class Pod:
             # sub_task.start_global_time = const.global_time
             # sub_task.start_time_in_balancer_que = const.global_time
             const.tasks.append(sub_task)
-            
+            const.all_task_count += 1
             # заблокированы до ответа другой ручки
             self.wait_outer_hendler = True
             return
@@ -118,8 +124,10 @@ class Pod:
                  
                 # self.busy_time += self.task_in_work.end_work_time - self.task_in_work.start_work_time
                 
+                self.responces_time_avg = self.task_in_work.end_work_time - self.task_in_work.start_work_time
                 self.task_in_work = None
                 # const.update_task_is_closed(self.task_in_work.id)
+                self.actual_hendlers = None
         return
             
     def update_metrics(self):
@@ -127,18 +135,24 @@ class Pod:
         """
         self.count_task_int_deque.append(len(self.queue_tasks))
         
-        
         # глоабльное время работы устройства
+        # print("Update metric: srv = ", self.name, "is_block =", self.is_blocked, "time =", const.global_time, "self.busy_time =", self.busy_time, "self.res_count =", self.res_count)
         if self.is_blocked:
             self.busy_time += 1
+            if self.responces_time_avg < const.global_time - self.task_in_work.start_work_time:
+                self.responces_time_avg = const.global_time - self.task_in_work.start_work_time
         else:
             self.idle_time += 1
-            
-        self.rps.append(self.res_count / (self.busy_time))
-        if self.res_count != 0:
-            self.responces_time_avg = self.busy_time / self.res_count
+        
+        if self.busy_time != 0:
+            self.rps.append((self.res_count) / (self.busy_time))
         else:
-            self.responces_time_avg = self.busy_time / 1
+             self.rps.append(0)
+        
+        # if self.res_count != 0:
+        #     self.responces_time_avg = (self.busy_time) / self.res_count
+        # else:
+        #     self.responces_time_avg = 0
         # self.responces_count.append(self.res_count)
         return
     
@@ -153,7 +167,7 @@ class Pod:
         # print("Pod.update_time:", self.actual_hendlers)
         self.actual_hendlers = copy.deepcopy(self.hendlers.get(self.task_in_work.handler_id))
         self.is_blocked = True
-        self.working_time = self.actual_hendlers.local_time
+        self.working_time = self.actual_hendlers.local_time + self.func_disr(*self.func_distr_args)
         
         self.task_in_work.end_time_in_pod_que = const.global_time
         self.task_in_work.start_work_time = const.global_time

@@ -1,7 +1,7 @@
 import yaml
 
 from app.objects.service import Service, Handler
-
+from app.generate_task import Generator
 
 def download_config(name = "./configs/setup.yaml"):
     with open(name, 'r') as file:
@@ -10,7 +10,7 @@ def download_config(name = "./configs/setup.yaml"):
         return data
 
     
-def get_services() -> list[list[Service], list[Handler], dict[str, int], int, str, int]:
+def get_services() -> list[list[Service], list[Handler], dict[str, int], int, str, int, ]:
     data = download_config()
     generator = data.get("generator")
     if generator is None:
@@ -24,8 +24,6 @@ def get_services() -> list[list[Service], list[Handler], dict[str, int], int, st
     
     out_srvs: list[Service] = []
     handlers = []
-    
-    
     
     probability = 0
     hd_ids = []
@@ -57,7 +55,10 @@ def get_services() -> list[list[Service], list[Handler], dict[str, int], int, st
         
     check_handlers(out_srvs, hd_ids)
     
-    return out_srvs, handlers, generator, data.get("balancer").get("max_length_queue_task"), data.get("balancer").get("function"), stop_time
+    
+    g = Generator(handlers, generator)
+    
+    return out_srvs, handlers, g, data.get("balancer").get("max_length_queue_task"), data.get("balancer").get("function"), stop_time
 
 def generate_srv(data) -> list[Service, dict[int, Handler], float]:
     handlers: dict[int, Handler] = {}
@@ -107,8 +108,10 @@ def generate_srv(data) -> list[Service, dict[int, Handler], float]:
     if max_length_queue_task == None:
         max_length_queue_task = 100
         print("max_length_queue_task не задана => значение по дефолту 100")
+        
+    distribution = data["distribution"][0]
     
-    return Service(data.get("service_name"), handlers, max_length_queue_task, pods_count, p_w), hs, h_ps
+    return Service(data.get("service_name"), handlers, max_length_queue_task, pods_count, p_w, distribution), hs, h_ps
 
 def check_handlers(srvs: list[Service], handlers_ids: list[any]):
     for s in srvs:

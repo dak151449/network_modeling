@@ -7,12 +7,12 @@ STOP_TIME = 10000 * 50
 """остановка моделирования по истечению времени
 """
 
-global_time = 1
+global_time = 0
 tasks: list[Task] = []
 closed_tasks: list[Task] = []
 subtask_closed: list[Task] = []
 
-    
+all_task_count = 0
         
 def set_start_tasks(tasks: list[Task]) -> list[Task]:
     for t in tasks:

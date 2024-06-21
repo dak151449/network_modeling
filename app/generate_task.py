@@ -5,6 +5,8 @@ import uuid
 from app.objects.task import Task
 from app.objects.handler import Handler
 from app.global_constants import const
+from app.distributions.distributions import Distributions
+
 
 class Generator():
     def __init__(self, handlers: list[Handler], data: dict[str, int]):
@@ -17,9 +19,13 @@ class Generator():
             self.probabilities.append(h.probability)
         
         # Время между событиями (в секундах)
+        self.interval_static = data["interval"]
         self.interval = data["interval"]
         self.count = data["count_in_iteration"]
         self.start_time = const.get_time()
+        
+        self.func_distr: str = data["distribution"][0]["function_name"]
+        self.func_distr_args: list[any] = data["distribution"][0]["function_args"]
         return
     
     def generate_random_task(self) -> Task:
@@ -38,8 +44,13 @@ class Generator():
             
             self.generate_event(event_type)
         
+        self.interval = self.interval_static + Distributions.uniform(*self.func_distr_args)
+        
     def generate_event(self, event_type: int):
         const.tasks.append(Task(str(uuid.uuid1()), event_type, const.global_time))
+        
+        const.all_task_count += 1
+        
         return 
         
     
